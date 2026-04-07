@@ -1,0 +1,1 @@
+"""Polymarket gap bot package."""
