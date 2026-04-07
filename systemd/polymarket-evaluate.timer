@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Polymarket daily evaluation timer
+
+[Timer]
+OnCalendar=*-*-* 23:55:00
+Persistent=true
+Unit=polymarket-evaluate.service
+
+[Install]
+WantedBy=timers.target

@@ -1,17 +1,55 @@
 {
-  "generated_at": "2026-04-07T14:33:02.616954+00:00",
-  "snapshot_count": 3,
-  "signal_count": 3,
-  "alert_count": 0,
-  "avg_net_edge": 0.07145136552255044,
-  "max_net_edge": 0.16215149204038984,
-  "avg_seconds_to_expiry": 12.990018666666666,
-  "too_close_to_expiry_count": 3,
+  "generated_at": "2026-04-07T14:53:47.324783+00:00",
+  "snapshot_count": 74,
+  "signal_count": 72,
+  "alert_count": 62,
+  "avg_net_edge": 0.37445342419878447,
+  "max_net_edge": 0.47499999981577445,
+  "avg_seconds_to_expiry": 137.2677968918919,
+  "too_close_to_expiry_count": 9,
   "best_side_counts": {
-    "no": 2,
-    "yes": 1
+    "no": 63,
+    "yes": 11
   },
   "sample_questions": [
-    "Bitcoin Up or Down - April 7, 10:25AM-10:30AM ET"
-  ]
+    "Bitcoin Up or Down - April 7, 10:25AM-10:30AM ET",
+    "Bitcoin Up or Down - April 7, 10:45AM-10:50AM ET",
+    "Bitcoin Up or Down - April 7, 10:50AM-10:55AM ET"
+  ],
+  "resolved_market_count": 1,
+  "first_signal_accuracy": 1.0,
+  "first_signal_market_count": 1,
+  "first_alert_accuracy": 1.0,
+  "first_alert_market_count": 1,
+  "first_signal_details": [
+    {
+      "slug": "btc-updown-5m-1775573100",
+      "question": "Bitcoin Up or Down - April 7, 10:45AM-10:50AM ET",
+      "captured_at": "2026-04-07T14:49:25.258714+00:00",
+      "best_side": "yes",
+      "net_edge": 0.14840860015140303,
+      "correct": true,
+      "close_outcome": "yes"
+    }
+  ],
+  "first_alert_details": [
+    {
+      "slug": "btc-updown-5m-1775573100",
+      "question": "Bitcoin Up or Down - April 7, 10:45AM-10:50AM ET",
+      "captured_at": "2026-04-07T14:49:25.258714+00:00",
+      "best_side": "yes",
+      "net_edge": 0.14840860015140303,
+      "correct": true,
+      "close_outcome": "yes"
+    }
+  ],
+  "resolved_markets": {
+    "btc-updown-5m-1775573100": {
+      "question": "Bitcoin Up or Down - April 7, 10:45AM-10:50AM ET",
+      "close_outcome": "yes",
+      "close_price": 68114.445,
+      "open_reference_price": 68091.405,
+      "final_seconds_to_expiry": -2.485082
+    }
+  }
 }

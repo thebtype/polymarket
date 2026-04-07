@@ -1,0 +1,15 @@
+[Unit]
+Description=Polymarket BTC 5m gap bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.openclaw/workspace/polymarket
+ExecStart=%h/.openclaw/workspace/polymarket/scripts/run_bot_daily.sh
+ExecStop=%h/.openclaw/workspace/polymarket/scripts/stop_bot.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

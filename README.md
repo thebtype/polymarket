@@ -16,6 +16,18 @@ Read-only monitor for potential pricing gaps between Binance BTC price action an
 python3 -m polymarket_gap_bot.main
 ```
 
+## Helper scripts
+
+```bash
+./scripts/run_bot_daily.sh
+./scripts/stop_bot.sh
+python3 scripts/evaluate_day.py
+```
+
+- `run_bot_daily.sh` starts the bot and writes to a date-stamped log file in `logs/`
+- `stop_bot.sh` stops the bot using the saved PID file in `run/`
+- `evaluate_day.py` refreshes the daily scorecard and markdown summary in `reports/`
+
 ## Environment variables
 
 - `POLYMARKET_EVENT_SLUG` example: `btc-updown-5m-1775496300`
@@ -31,6 +43,26 @@ python3 -m polymarket_gap_bot.main
 ## Output
 - `data/market_snapshots.jsonl`
 - `data/signals.csv`
+- `logs/polymarket_gap_bot_YYYY-MM-DD.out`
+- `reports/daily_scorecard.json`
+- `reports/daily_summary.md`
+
+## Scheduling
+
+Systemd user unit files are included in `systemd/`:
+- `polymarket-bot.service`
+- `polymarket-evaluate.service`
+- `polymarket-evaluate.timer`
+
+Example install:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp systemd/* ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now polymarket-bot.service
+systemctl --user enable --now polymarket-evaluate.timer
+```
 
 ## Important caveats
 - The parser currently uses heuristics from question/description text.
