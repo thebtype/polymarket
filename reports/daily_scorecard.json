@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-04-07T14:33:02.616954+00:00",
+  "snapshot_count": 3,
+  "signal_count": 3,
+  "alert_count": 0,
+  "avg_net_edge": 0.07145136552255044,
+  "max_net_edge": 0.16215149204038984,
+  "avg_seconds_to_expiry": 12.990018666666666,
+  "too_close_to_expiry_count": 3,
+  "best_side_counts": {
+    "no": 2,
+    "yes": 1
+  },
+  "sample_questions": [
+    "Bitcoin Up or Down - April 7, 10:25AM-10:30AM ET"
+  ]
+}

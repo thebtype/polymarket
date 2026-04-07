@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from html import unescape
-import re
 from urllib.error import URLError
-from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 import json
 
@@ -18,26 +16,8 @@ class PolymarketClient:
 
     def fetch_candidate_markets(self) -> list[dict]:
         if self.settings.event_slug:
-            markets = self.fetch_event_markets(self.settings.event_slug)
-            if markets:
-                return markets
-
-        params = urlencode(
-            {
-                "limit": self.settings.market_query_limit,
-                "active": "true",
-                "closed": "false",
-            }
-        )
-        url = f"{self.settings.gamma_base_url}/markets?{params}"
-        request = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        try:
-            with urlopen(request, timeout=self.settings.request_timeout_seconds) as response:
-                payload = json.load(response)
-        except URLError as exc:
-            raise RuntimeError(f"Polymarket request failed: {exc}") from exc
-
-        return [market for market in payload if self._looks_relevant(market)]
+            return self.fetch_event_markets(self.settings.event_slug)
+        return []
 
     def fetch_event_markets(self, event_slug: str) -> list[dict]:
         url = f"https://polymarket.com/event/{event_slug}"
@@ -48,17 +28,44 @@ class PolymarketClient:
         except URLError as exc:
             raise RuntimeError(f"Polymarket event page request failed: {exc}") from exc
 
-        match = re.search(r'"markets":(\[.*?\]),"series":', html)
-        if not match:
+        marker = '"markets":'
+        start = html.find(marker)
+        if start == -1:
             return []
-        payload = json.loads(unescape(match.group(1)))
-        return payload
+        start = html.find('[', start)
+        if start == -1:
+            return []
 
-    def _looks_relevant(self, market: dict) -> bool:
+        depth = 0
+        end = None
+        for idx in range(start, len(html)):
+            char = html[idx]
+            if char == '[':
+                depth += 1
+            elif char == ']':
+                depth -= 1
+                if depth == 0:
+                    end = idx + 1
+                    break
+
+        if end is None:
+            return []
+
+        payload = json.loads(unescape(html[start:end]))
+        return [market for market in payload if self._looks_like_btc_5m_market(market)]
+
+    def _looks_like_btc_5m_market(self, market: dict) -> bool:
         haystack = " ".join(
-            str(market.get(key, "")) for key in ("question", "description", "groupItemTitle")
+            str(market.get(key, "")) for key in ("question", "description", "groupItemTitle", "slug")
         ).lower()
-        return any(term in haystack for term in self.settings.market_search_terms)
+        btc_terms = ("bitcoin", "btc")
+        updown_terms = ("up or down", "up/down", "updown")
+        short_window_terms = ("5m", "5 minute", "5-minute")
+        return (
+            any(term in haystack for term in btc_terms)
+            and any(term in haystack for term in updown_terms)
+            and any(term in haystack for term in short_window_terms)
+        )
 
     @staticmethod
     def parse_datetime(value: str | None) -> datetime | None:

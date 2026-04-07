@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "filters": {
+    "allowed_condition_types": ["range_close_vs_open"],
+    "allowed_slug_prefixes": ["btc-updown-5m-"],
+    "exclude_low_confidence": true
+  },
+  "metrics": [
+    {
+      "name": "snapshot_count",
+      "description": "Number of filtered market snapshots evaluated"
+    },
+    {
+      "name": "signal_count",
+      "description": "Number of filtered snapshots with positive gross edge"
+    },
+    {
+      "name": "alert_count",
+      "description": "Number of filtered snapshots that triggered an alert"
+    },
+    {
+      "name": "avg_net_edge",
+      "description": "Average net edge across filtered snapshots with a computed net edge"
+    },
+    {
+      "name": "max_net_edge",
+      "description": "Maximum net edge across filtered snapshots"
+    },
+    {
+      "name": "avg_seconds_to_expiry",
+      "description": "Average seconds to expiry across filtered snapshots"
+    },
+    {
+      "name": "too_close_to_expiry_count",
+      "description": "How many filtered snapshots were blocked only or partly because they were too close to expiry"
+    }
+  ]
+}
