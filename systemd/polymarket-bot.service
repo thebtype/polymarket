@@ -6,8 +6,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=%h/.openclaw/workspace/polymarket
-ExecStart=%h/.openclaw/workspace/polymarket/scripts/run_bot_daily.sh
-ExecStop=%h/.openclaw/workspace/polymarket/scripts/stop_bot.sh
+ExecStart=/bin/bash -lc 'mkdir -p logs && ln -sfn polymarket_gap_bot_$(date +%%F).out logs/polymarket_gap_bot.out && exec env SERIES_SEARCH_LIMIT=1600 MIN_SECONDS_TO_EXPIRY=120 MAX_SPREAD=0.02 MIN_NET_EDGE=0.16 python3 -m polymarket_gap_bot.main >> logs/polymarket_gap_bot_$(date +%%F).out 2>&1'
 Restart=on-failure
 RestartSec=10
 

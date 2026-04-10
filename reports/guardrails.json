@@ -1,0 +1,23 @@
+{
+  "mode": "paper",
+  "reference_portfolio": 1000.0,
+  "max_daily_loss_pct": 0.1,
+  "max_position_size_pct": 0.02,
+  "max_consecutive_losses": 5,
+  "min_net_edge_live": 0.2,
+  "min_seconds_to_expiry_live": 120,
+  "max_spread_live": 0.015,
+  "kill_switch_enabled": true,
+  "require_manual_reenable_after_kill": true,
+  "dedicated_wallet_required": true,
+  "separate_execution_module_required": true,
+  "notes": [
+    "Do not go live from monitor code directly; require a separate execution module.",
+    "Stop trading immediately after hitting max daily loss, max consecutive losses, or any unexpected fill behavior.",
+    "Position sizing should scale with current portfolio, not fixed dollars.",
+    "Require a dedicated wallet with isolated permissions before any live order flow.",
+    "Manual re-enable required after any kill-switch trigger."
+  ],
+  "max_daily_loss": 100.0,
+  "max_position_size": 20.0
+}

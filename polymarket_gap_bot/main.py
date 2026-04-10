@@ -148,7 +148,10 @@ def run() -> None:
             sleep(settings.poll_interval_seconds)
         except Exception as exc:
             log_status(f"error: {exc}")
-            sleep(settings.poll_interval_seconds)
+            if "rate limited (429)" in str(exc):
+                sleep(settings.rate_limit_backoff_seconds)
+            else:
+                sleep(settings.poll_interval_seconds)
 
 
 if __name__ == "__main__":

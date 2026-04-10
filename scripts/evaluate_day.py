@@ -13,6 +13,8 @@ SUMMARY_DIR = ROOT / "reports"
 SNAPSHOTS_PATH = DATA_DIR / "market_snapshots.jsonl"
 SUMMARY_PATH = SUMMARY_DIR / "daily_summary.md"
 SCORECARD_PATH = SUMMARY_DIR / "daily_scorecard.json"
+PAPER_JOURNAL_PATH = SUMMARY_DIR / "paper_journal.json"
+GUARDRAILS_PATH = SUMMARY_DIR / "guardrails.json"
 
 
 def load_config() -> dict:
@@ -101,6 +103,12 @@ def first_alert_signal(rows: list[dict]) -> dict | None:
     return None
 
 
+def load_json(path: Path) -> dict | None:
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def summarize(rows: list[dict]) -> dict:
     signals = [row["signal"] for row in rows if row.get("signal")]
     net_edges = [sig["net_edge"] for sig in signals if sig.get("net_edge") is not None]
@@ -158,6 +166,11 @@ def summarize(rows: list[dict]) -> dict:
                 }
             )
 
+    paper_journal = load_json(PAPER_JOURNAL_PATH) or {}
+    paper_summary = paper_journal.get("summary") or {}
+    paper_assumptions = paper_journal.get("assumptions") or {}
+    guardrails = load_json(GUARDRAILS_PATH) or {}
+
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "snapshot_count": len(rows),
@@ -177,6 +190,9 @@ def summarize(rows: list[dict]) -> dict:
         "first_signal_details": first_signal_details,
         "first_alert_details": first_alert_details,
         "resolved_markets": resolved_markets,
+        "harsh_paper_summary": paper_summary,
+        "harsh_paper_assumptions": paper_assumptions,
+        "guardrails": guardrails,
     }
 
 
@@ -191,7 +207,26 @@ def render_summary(scorecard: dict) -> str:
         "",
         f"Generated at: {scorecard['generated_at']}",
         "",
-        "## Scorecard",
+        "## Headline reality check",
+    ]
+
+    paper_summary = scorecard.get("harsh_paper_summary") or {}
+    paper_assumptions = scorecard.get("harsh_paper_assumptions") or {}
+    guardrails = scorecard.get("guardrails") or {}
+
+    if paper_summary:
+        lines.extend([
+            f"- Harsh paper trades: {paper_summary.get('trade_count', 'n/a')}",
+            f"- Harsh paper win rate: {fmt(paper_summary.get('win_rate'))}",
+            f"- Harsh paper ending portfolio: ${paper_summary.get('ending_portfolio', 0):.2f}",
+            f"- Harsh paper net profit: ${paper_summary.get('net_profit', 0):.2f}",
+        ])
+    else:
+        lines.append("- Harsh paper summary unavailable")
+
+    lines.extend([
+        "",
+        "## Raw signal scorecard",
         f"- Snapshots evaluated: {scorecard['snapshot_count']}",
         f"- Positive-edge signals: {scorecard['signal_count']}",
         f"- Alerts triggered: {scorecard['alert_count']}",
@@ -205,8 +240,49 @@ def render_summary(scorecard: dict) -> str:
         f"- First alert accuracy: {fmt(scorecard['first_alert_accuracy'])}",
         f"- Markets with first alert: {scorecard['first_alert_market_count']}",
         "",
+        "## Harsh paper assumptions",
+    ])
+
+    if paper_assumptions:
+        lines.extend([
+            f"- Side: {paper_assumptions.get('side', 'n/a')}",
+            f"- Min net edge: {paper_assumptions.get('min_net_edge', 'n/a')}",
+            f"- Entry lag: {paper_assumptions.get('entry_lag_seconds', 'n/a')}s",
+            f"- Entry slippage: {paper_assumptions.get('entry_slippage', 'n/a')}",
+            f"- Max entry price: {paper_assumptions.get('max_entry_price', 'n/a')}",
+            f"- Max spread: {paper_assumptions.get('max_spread', 'n/a')}",
+            f"- Min seconds to expiry at entry: {paper_assumptions.get('min_seconds_to_expiry_at_entry', 'n/a')}",
+            f"- Max daily loss: {paper_assumptions.get('max_daily_loss_pct', 0) * 100:.2f}% of portfolio",
+            f"- Max consecutive losses: {paper_assumptions.get('max_consecutive_losses', 'n/a')}",
+        ])
+    else:
+        lines.append("- unavailable")
+
+    lines.extend([
+        "",
+        "## Live guardrails",
+    ])
+
+    if guardrails:
+        lines.extend([
+            f"- Reference portfolio: ${guardrails.get('reference_portfolio', 0):.2f}",
+            f"- Max daily loss: {guardrails.get('max_daily_loss_pct', 0) * 100:.2f}% (${guardrails.get('max_daily_loss', 0):.2f} at current reference portfolio)",
+            f"- Max position size: {guardrails.get('max_position_size_pct', 0) * 100:.2f}% (${guardrails.get('max_position_size', 0):.2f} at current reference portfolio)",
+            f"- Max consecutive losses: {guardrails.get('max_consecutive_losses', 'n/a')}",
+            f"- Min live net edge: {guardrails.get('min_net_edge_live', 'n/a')}",
+            f"- Min live seconds to expiry: {guardrails.get('min_seconds_to_expiry_live', 'n/a')}",
+            f"- Max live spread: {guardrails.get('max_spread_live', 'n/a')}",
+            f"- Kill switch enabled: {guardrails.get('kill_switch_enabled', False)}",
+            f"- Dedicated wallet required: {guardrails.get('dedicated_wallet_required', False)}",
+            f"- Separate execution module required: {guardrails.get('separate_execution_module_required', False)}",
+        ])
+    else:
+        lines.append("- unavailable")
+
+    lines.extend([
+        "",
         "## Best side mix",
-    ]
+    ])
 
     if scorecard["best_side_counts"]:
         for side, count in sorted(scorecard["best_side_counts"].items()):

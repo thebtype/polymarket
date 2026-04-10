@@ -22,6 +22,7 @@ class Settings:
     volatility_lookback_seconds: int = int(os.getenv("VOL_LOOKBACK_SECONDS", "300"))
     max_history_points: int = int(os.getenv("MAX_HISTORY_POINTS", "600"))
     request_timeout_seconds: float = float(os.getenv("REQUEST_TIMEOUT_SECONDS", "10"))
+    rate_limit_backoff_seconds: float = float(os.getenv("RATE_LIMIT_BACKOFF_SECONDS", "30"))
     market_query_limit: int = int(os.getenv("MARKET_QUERY_LIMIT", "200"))
     series_search_limit: int = int(os.getenv("SERIES_SEARCH_LIMIT", "1600"))
     event_slug: str | None = os.getenv("POLYMARKET_EVENT_SLUG") or None

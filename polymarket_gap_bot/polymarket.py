@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from html import unescape
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 import json
+import time
 
 from .config import Settings
 from .time_utils import parse_iso8601
@@ -25,6 +26,16 @@ class PolymarketClient:
         try:
             with urlopen(request, timeout=self.settings.request_timeout_seconds) as response:
                 html = response.read().decode("utf-8", "ignore")
+        except HTTPError as exc:
+            if exc.code == 429:
+                retry_after = exc.headers.get("Retry-After")
+                try:
+                    delay = float(retry_after) if retry_after is not None else self.settings.rate_limit_backoff_seconds
+                except ValueError:
+                    delay = self.settings.rate_limit_backoff_seconds
+                time.sleep(delay)
+                raise RuntimeError(f"Polymarket event page rate limited (429), backed off for {delay:.0f}s") from exc
+            raise RuntimeError(f"Polymarket event page request failed: HTTP {exc.code}") from exc
         except URLError as exc:
             raise RuntimeError(f"Polymarket event page request failed: {exc}") from exc
 
